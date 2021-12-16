@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Security;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -60,7 +61,7 @@ namespace WinFormsApp1
 						tbLoop.Text = intLoop + "";
 					}else
                     {
-						return;
+						tbLoop.Text = "";
                     }
 					tbOpen.Text = rememberText[1].ToString().Substring(14);
 					tbLink.Text = rememberText[2].ToString().Substring(13);
@@ -243,7 +244,7 @@ namespace WinFormsApp1
 			// tạo string loop từ đường dẫn video
 			for (int i = 0; i < loop; i++)
 			{
-				contentLoopFile += tbOpen.Text + ";";
+				contentLoopFile += tbOpen.Text + ";\n";
 			}
 			// viết vào file loop
 			File.WriteAllText(loopFilePath, contentLoopFile);
@@ -251,20 +252,41 @@ namespace WinFormsApp1
 			var fileBatName = Directory.GetCurrentDirectory() + "\\" + Guid.NewGuid().ToString() + ".bat";
 			var batchPath = Path.Combine(Directory.GetCurrentDirectory() + "\\", fileBatName);
 			
-				var batchCode = type=="live247" ?  ":loop\nfor /F \"delims=;\" %%F in (" + loopFilePath + ") DO ffmpeg -re -y -i \"%%F\" -c copy -f mpegts - | ffmpeg -re -f mpegts -i - -c copy -f flv \"rtmp://a.rtmp.youtube.com/live2/" + tbLink.Text + "\"\ngoto loop"
-												: "for /F \"delims=;\" %%F in (" + loopFilePath + ") DO ffmpeg -re -y -i \"%%F\" -c copy -f mpegts - | ffmpeg -re -f mpegts -i - -c copy -f flv \"rtmp://a.rtmp.youtube.com/live2/" + tbLink.Text + "\"";
-			File.WriteAllText(batchPath, batchCode);
+				var batchCode = type=="live247" ?  "title "+tbTitle.Text + "\ncd lib \n:loop\nfor /F \"delims=;\" %%F in (" + loopFilePath + ") DO ffmpeg -re -y -i \"%%F\" -c copy -f mpegts - | ffmpeg -re -f mpegts -i - -c copy -f flv \"rtmp://a.rtmp.youtube.com/live2/" + tbLink.Text + "\"\ngoto loop"
+												: "title " + tbTitle.Text + "\ncd lib \nfor /F \"delims=;\" %%F in (" + loopFilePath + ") DO ffmpeg -re -y -i \"%%F\" -c copy -f mpegts - | ffmpeg -re -f mpegts -i - -c copy -f flv \"rtmp://a.rtmp.youtube.com/live2/" + tbLink.Text + "\"";
+			File.WriteAllLines(batchPath, batchCode.Split('\n'));
 
             // bắt buộc phải có file ffmpeg.exe ( thư viện ) ở file chạy
             // file batch sẽ được chạy và application sẽ dừng cho đến khi file batch đc đóng.
 			lbMess.Text = "Tool is running!";
-			Process.Start(batchPath).WaitForExit();
-			lbMess.Text = "";
+			var process = Process.Start(batchPath);
+			process.EnableRaisingEvents = true;
+            process.WaitForExit();
+            //Provide some time to process the main_Exited event. 
+
+
+            string typeCheck = rbPublicNow.Checked ? "public now" : (rbSetTime.Checked ? "set time" : "live 247");
+            string strLoop = (typeCheck == "public now" || typeCheck == "set time") ? tbLoop.Text : "0";
+            string[] input = { "remember :true", "select video :" + tbOpen.Text, "stream code :" + tbLink.Text, "type :" + typeCheck, "loop :" + strLoop };
+            SaveDoubleValue(input);
+
+
+            lbMess.Text = "";
+            //tbTitle.Text = batchPath;
             File.Delete(batchPath);
             File.Delete(loopFilePath);
 
             //ExecuteCmd(batchCode);
         }
+		protected void test(object sender, EventArgs e)
+        {
+			string typeCheck = rbPublicNow.Checked ? "public now" : (rbSetTime.Checked ? "set time" : "live 247");
+			string strLoop = (typeCheck == "public now" || typeCheck == "set time") ? tbLoop.Text : "0";
+			string[] input = { "remember :true", "select video :" + tbOpen.Text, "stream code :" + tbLink.Text, "type :" + typeCheck, "loop :" + strLoop };
+			SaveDoubleValue(input);
+			//File.Delete(batchPath);
+			//File.Delete(loopFilePath);
+		}
 		// Nút hủy đếm ngược
 		private void btCancel_Click(object sender, EventArgs e)
 		{

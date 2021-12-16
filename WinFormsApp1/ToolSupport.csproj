@@ -7,16 +7,9 @@
     <RootNamespace>ToolSupportLiveStream</RootNamespace>
     <AssemblyName>ToolSupportLiveStream</AssemblyName>
     <ApplicationIcon>iconfinder_facebook_live_icon_1083837.ico</ApplicationIcon>
+    <BaseOutputPath>manh</BaseOutputPath>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>D:\test build\</OutputPath>
-  </PropertyGroup>
-
-	
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <OutputPath>D:\test build\</OutputPath>
-  </PropertyGroup>
 
   <ItemGroup>
     <Compile Update="Properties\Resources.Designer.cs">
