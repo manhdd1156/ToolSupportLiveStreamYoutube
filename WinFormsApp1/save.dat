@@ -1,0 +1,5 @@
+remember :true
+select video :C:\Users\Admin\Downloads\testVideo.mp4
+stream code :dsadsa
+type :set time
+set time :22:32:42

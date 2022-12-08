@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "ToolSupport": {
+      "commandName": "Project",
+      "workingDirectory": "D:\\temp\\toolsupportlivestream\\ToolSupportLiveStreamYoutube\\WinFormsApp1"
+    }
+  }
+}
