@@ -48,11 +48,11 @@ namespace WinFormsApp1
             this.tbTitle = new System.Windows.Forms.TextBox();
             this.lbTitle = new System.Windows.Forms.Label();
             this.dateTimePicker1 = new System.Windows.Forms.DateTimePicker();
-            this.maskedTextBox1 = new System.Windows.Forms.MaskedTextBox();
             this.cbBackup = new System.Windows.Forms.CheckBox();
             this.dateTimePicker2 = new System.Windows.Forms.DateTimePicker();
             this.cbRunnow1 = new System.Windows.Forms.CheckBox();
             this.cbRunnow2 = new System.Windows.Forms.CheckBox();
+            this.tbLoop = new System.Windows.Forms.TextBox();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -222,16 +222,6 @@ namespace WinFormsApp1
             this.dateTimePicker1.TabIndex = 18;
             this.dateTimePicker1.ValueChanged += new System.EventHandler(this.timePicker_ValueChanged);
             // 
-            // maskedTextBox1
-            // 
-            this.maskedTextBox1.Location = new System.Drawing.Point(162, 149);
-            this.maskedTextBox1.Mask = "00:00:00";
-            this.maskedTextBox1.Name = "maskedTextBox1";
-            this.maskedTextBox1.Size = new System.Drawing.Size(51, 23);
-            this.maskedTextBox1.TabIndex = 20;
-            this.maskedTextBox1.MaskInputRejected += new System.Windows.Forms.MaskInputRejectedEventHandler(this.maskedTextBox1_MaskInputRejected);
-            this.maskedTextBox1.Leave += new System.EventHandler(this.maskedFocusOut);
-            // 
             // cbBackup
             // 
             this.cbBackup.AutoSize = true;
@@ -275,17 +265,26 @@ namespace WinFormsApp1
             this.cbRunnow2.Visible = false;
             this.cbRunnow2.CheckedChanged += new System.EventHandler(this.cbRunnow2_CheckedChanged);
             // 
+            // tbLoop
+            // 
+            this.tbLoop.Location = new System.Drawing.Point(162, 149);
+            this.tbLoop.Name = "tbLoop";
+            this.tbLoop.PlaceholderText = "Số lần lặp";
+            this.tbLoop.Size = new System.Drawing.Size(60, 23);
+            this.tbLoop.TabIndex = 27;
+            this.tbLoop.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.tbLoop_KeyPress);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(705, 429);
+            this.Controls.Add(this.tbLoop);
             this.Controls.Add(this.cbRunnow2);
             this.Controls.Add(this.cbRunnow1);
             this.Controls.Add(this.dateTimePicker2);
             this.Controls.Add(this.cbBackup);
             this.Controls.Add(this.dateTimePicker1);
-            this.Controls.Add(this.maskedTextBox1);
             this.Controls.Add(this.tbTitle);
             this.Controls.Add(this.lbTitle);
             this.Controls.Add(this.btCancel);
@@ -333,11 +332,11 @@ namespace WinFormsApp1
         private System.Windows.Forms.TextBox tbTitle;
         private System.Windows.Forms.Label lbTitle;
         private System.Windows.Forms.DateTimePicker dateTimePicker1;
-        private System.Windows.Forms.MaskedTextBox maskedTextBox1;
         private System.Windows.Forms.CheckBox cbBackup;
         private System.Windows.Forms.DateTimePicker dateTimePicker2;
         private System.Windows.Forms.CheckBox cbRunnow1;
         private System.Windows.Forms.CheckBox cbRunnow2;
+        private System.Windows.Forms.TextBox tbLoop;
     }
 }
 

@@ -1,5 +1,5 @@
 remember :true
-select video :C:\Users\Admin\Downloads\testVideo.mp4
-stream code :dsadsa
+select video :fdfd
+stream code :fdfdfd
 type :set time
-set time :22:32:42
+set loop :

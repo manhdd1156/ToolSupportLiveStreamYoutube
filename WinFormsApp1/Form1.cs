@@ -14,6 +14,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.VisualStyles;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace WinFormsApp1
 {
@@ -59,21 +60,21 @@ namespace WinFormsApp1
                 else if (rememberText[0] == "remember :true")
                 {
 
-                    if (!rememberText[1].Contains("select video :") || !rememberText[2].Contains("stream code :") || !rememberText[3].Contains("type :") || !rememberText[4].Contains("set time :"))
+                    if (!rememberText[1].Contains("select video :") || !rememberText[2].Contains("stream code :") || !rememberText[3].Contains("type :"))
                     {
                         return;
                     }
-                    string strSetTime = rememberText[4].ToString().Substring(6);
+                    //string strSetTime = rememberText[4].ToString().Substring(6);
 
-                    Match m = Regex.Match(strSetTime, setTimePattern, RegexOptions.IgnoreCase);
-                    if (m.Success)
-                    {
-                        maskedTextBox1.Text = setTimePattern;
-                    }
-                    else
-                    {
-                        maskedTextBox1.Text = "";
-                    }
+                    //Match m = Regex.Match(strSetTime, setTimePattern, RegexOptions.IgnoreCase);
+                    //if (m.Success)
+                    //{
+                    //    maskedTextBox1.Text = setTimePattern;
+                    //}
+                    //else
+                    //{
+                    //    maskedTextBox1.Text = "";
+                    //}
                     tbOpen.Text = rememberText[1].ToString().Substring(14);
                     tbLink.Text = rememberText[2].ToString().Substring(13);
                     string typeCheck = rememberText[3].ToString().Substring(6);
@@ -97,8 +98,8 @@ namespace WinFormsApp1
                 // Cancel the Closing event from closing the form.
                 e.Cancel = true;
                 string typeCheck = rbSetTime.Checked ? "set time" : "live 247";
-                string strSetTime = rbSetTime.Checked ? maskedTextBox1.Text : "00:00:00";
-                string[] input = { "remember :true", "select video :" + tbOpen.Text, "stream code :" + tbLink.Text, "type :" + typeCheck, "set time :" + strSetTime };
+                string strSetLoop = rbSetTime.Checked ? tbLoop.Text : "";
+                string[] input = { "remember :true", "select video :" + tbOpen.Text, "stream code :" + tbLink.Text, "type :" + typeCheck, "set loop :" + strSetLoop };
                 SaveDoubleValue(input);
                 e.Cancel = false;
             }
@@ -154,7 +155,8 @@ namespace WinFormsApp1
         {
             dateTimePicker1.Visible = true;
             cbRunnow1.Visible = true;
-            maskedTextBox1.Visible = true;
+            tbLoop.Visible = true;  
+            //maskedTextBox1.Visible = true;
 
             // Ẩn lựa chọn live 24/7
             dateTimePicker2.Visible = false;
@@ -170,7 +172,8 @@ namespace WinFormsApp1
             // Ẩn lựa chọn set time live
             dateTimePicker1.Visible = false;
             cbRunnow1.Visible = false;
-            maskedTextBox1.Visible = false;
+            tbLoop.Visible = false;
+            //maskedTextBox1.Visible = false;
         }
 
         private void cbRunnow1_CheckedChanged(object sender, EventArgs e)
@@ -200,7 +203,7 @@ namespace WinFormsApp1
         private void btStart_Click(object sender, EventArgs e)
         {
             lbMess.Text = "";
-
+            
 
             // Tạo 1 timer
             aTimer = new System.Windows.Forms.Timer();
@@ -208,18 +211,26 @@ namespace WinFormsApp1
             aTimer.Interval = 1000; // 1 second
             DateTime d = DateTime.Now;
             TimeSpan ts;
-            if (tbOpen.Text == "")
+            if (string.IsNullOrEmpty(tbOpen.Text))
             {
+                Console.WriteLine("herre ");
                 lbMess.Text = "Select video is Empty!";
+                return;
             }
-            else if (tbLink.Text == "")
+            else if (string.IsNullOrEmpty(tbLink.Text))
             {
+                Console.WriteLine("herre2 ");
                 lbMess.Text = "Stream code is Empty!";
+                return;
             }
             else if (rbSetTime.Checked)
             {
-                checkTimeLiveStream();
-
+                //checkTimeLiveStream();
+                //Check tbLoop
+                if(string.IsNullOrEmpty(tbLoop.Text)) {
+                    lbMess.Text = "Please set loop field!";
+                    return;
+                }
                 //Nếu chọn runnow thì sẽ bỏ qua timer ( set TotalSeconds = -2 )
                 ts = cbRunnow1.Checked ? d.Subtract(DateTime.Now.AddSeconds(2)) : d.Subtract(dateTimePicker1.Value);
                 System.Diagnostics.Debug.WriteLine("We get a total of {0} seconds", (int)ts.TotalSeconds);
@@ -262,6 +273,7 @@ namespace WinFormsApp1
             btCancel.Visible = true;
             tbOpen.Enabled = false;
             tbLink.Enabled = false;
+            tbTitle.Enabled = false;
             btOpen.Enabled = false;
             rbSetTime.Enabled = false;
             rbLive247.Enabled = false;
@@ -270,7 +282,8 @@ namespace WinFormsApp1
             cbRunnow1.Enabled = false;
             cbRunnow2.Enabled = false;
             cbBackup.Enabled = false;
-            maskedTextBox1.Enabled = false;
+            tbLoop.Enabled = false; 
+            //maskedTextBox1.Enabled = false;
         }
 
 
@@ -303,12 +316,14 @@ namespace WinFormsApp1
                 tbOpen.Enabled = true;
                 tbLink.Enabled = true;
                 btOpen.Enabled = true;
+                tbTitle.Enabled = true;
                 rbSetTime.Enabled = true;
                 rbLive247.Enabled = true;
                 cbRunnow1.Enabled = true;
                 cbRunnow2.Enabled = true;
                 cbBackup.Enabled = true;
-                maskedTextBox1.Enabled = true;
+                tbLoop.Enabled = true;
+                //maskedTextBox1.Enabled = true;
 
                 if(!cbRunnow1.Checked)
                 {
@@ -338,31 +353,31 @@ namespace WinFormsApp1
             var loopFilePath = Path.Combine(Directory.GetCurrentDirectory() + "\\", loopFileName);
 
 
-            //DELETE START - MANHDD - 29/11/2022 - Bỏ lặp theo lần thay bằng lặp theo thời gian.
             // lấy số lượng loop
-            //var loop = type=="live247" ? 1: Int32.Parse(tbLoop.Text);
-            //String contentLoopFile = "";
-            // tạo string loop từ đường dẫn video
-            //for (int i = 0; i < loop; i++)
-            //{
-            //	contentLoopFile += tbOpen.Text + ";\n";
-            //}
+            var loop = Int32.Parse(tbLoop.Text);
+            String contentLoopFile = "";
+            //tạo string loop từ đường dẫn video
+            for (int i = 0; i < loop; i++)
+            {
+                contentLoopFile += tbOpen.Text + ";\n";
+            }
 
-            //contentLoopFile += tbOpen.Text + ";\n";
+            contentLoopFile += tbOpen.Text + ";\n";
 
-            // viết vào file loop
-            //File.WriteAllText(loopFilePath, contentLoopFile);
-            //DELETE END - MANHDD - 29/11/2022 - Bỏ lặp theo lần thay bằng lặp theo thời gian.
+            //viết vào file loop
+            File.WriteAllText(loopFilePath, contentLoopFile);
             //var fileBatName = "D:\\test\\temp.bat";
             var fileBatName = Directory.GetCurrentDirectory() + "\\" + Guid.NewGuid().ToString() + ".bat";
             var batchPath = Path.Combine(Directory.GetCurrentDirectory() + "\\", fileBatName);
-            //UPDATE START - MANHDD - 29/11/2022 - Bỏ lặp theo lần thay bằng lặp theo thời gian.
+            // Câu lệnh v1
             //var batchCode = type=="live247" ?  "title "+tbTitle.Text + "\ncd lib \n:loop\nfor /F \"delims=;\" %%F in (" + loopFilePath + ") DO ffmpeg -re -y -i \"%%F\" -c copy -f mpegts - | ffmpeg -re -f mpegts -i - -c copy -f flv \"rtmp://a.rtmp.youtube.com/live2/" + tbLink.Text + "\"\ngoto loop"
-            //: "title " + tbTitle.Text + "\ncd lib \nfor /F \"delims=;\" %%F in (" + loopFilePath + ") DO ffmpeg -re -y -i \"%%F\" -c copy -f mpegts - | ffmpeg -re -f mpegts -i - -c copy -f flv \"rtmp://a.rtmp.youtube.com/live2/" + tbLink.Text + "\"";
+            //                                    : "title " + tbTitle.Text + "\ncd lib \nfor /F \"delims=;\" %%F in (" + loopFilePath + ") DO ffmpeg -re -y -i \"%%F\" -c copy -f mpegts - | ffmpeg -re -f mpegts -i - -c copy -f flv \"rtmp://a.rtmp.youtube.com/live2/" + tbLink.Text + "\"";
+            // Câu lệnh v2 : thay đổi live247
             var batchCode = type == "live247" ? "title " + tbTitle.Text + "\ncd lib \n:loop\nffmpeg -re -y -i \"" + tbOpen.Text + "\" -c copy -f flv -flvflags no_duration_filesize \"" + (cbBackup.Checked ? baseUrl_backup : baseUrl)  + tbLink.Text + "\"\ngoto loop"
-                                                : "title " + tbTitle.Text + "\ncd lib \nffmpeg -re -y -stream_loop -1 -i \"" + tbOpen.Text + "\" -c copy -t " + totalTimeLiveStream + " -f flv -flvflags no_duration_filesize \""+ (cbBackup.Checked ? baseUrl_backup : baseUrl) + tbLink.Text + "\"";
+                                                //: "title " + tbTitle.Text + "\ncd lib \nffmpeg -re -y -stream_loop -1 -i \"" + tbOpen.Text + "\" -c copy -t " + totalTimeLiveStream + " -f flv -flvflags no_duration_filesize \""+ (cbBackup.Checked ? baseUrl_backup : baseUrl) + tbLink.Text + "\"";
+                                                : "title " + tbTitle.Text + "\ncd lib \nfor /F \"delims=;\" %%F in (" + loopFilePath + ") DO ffmpeg -re -y -i \"%%F\" -c copy -f mpegts - | ffmpeg -re -f mpegts -i - -c copy -f flv -flvflags no_duration_filesize \"" + (cbBackup.Checked ? baseUrl_backup : baseUrl) + tbLink.Text + "\"";
+
             Console.WriteLine(batchCode);
-            //UPDATE END - MANHDD - 29/11/2022 - Bỏ lặp theo lần thay bằng lặp theo thời gian.
             File.WriteAllLines(batchPath, batchCode.Split('\n'));
 
             // bắt buộc phải có file ffmpeg.exe ( thư viện ) ở file chạy
@@ -375,7 +390,7 @@ namespace WinFormsApp1
 
 
             string typeCheck = rbSetTime.Checked ? "set time" : "live 247";
-            string strSetTime = rbSetTime.Checked ? maskedTextBox1.Text : "00:00:00";
+            string strSetTime = rbSetTime.Checked ? tbLoop.Text : "";
             string[] input = { "remember :true", "select video :" + tbOpen.Text, "stream code :" + tbLink.Text, "type :" + typeCheck, "set time :" + strSetTime };
             SaveDoubleValue(input);
 
@@ -405,6 +420,8 @@ namespace WinFormsApp1
             tbOpen.Enabled = true;
             tbLink.Enabled = true;
             btOpen.Enabled = true;
+            tbLoop.Enabled = true;
+            tbTitle.Enabled = true;
             rbSetTime.Enabled = true;
             rbLive247.Enabled = true;
             dateTimePicker1.Enabled = true;
@@ -412,7 +429,7 @@ namespace WinFormsApp1
             cbRunnow1.Enabled = true;
             cbRunnow2.Enabled = true;
             cbBackup.Enabled = true;
-            maskedTextBox1.Enabled = true;
+            //maskedTextBox1.Enabled = true;
             lbMess.Text = "Cancelled count down!";
 
             lbCountDown.Text = "";
@@ -444,42 +461,42 @@ namespace WinFormsApp1
             }
         }
 
-        private void maskedTextBox1_MaskInputRejected(object sender, MaskInputRejectedEventArgs e)
-        {
-            Console.WriteLine(maskedTextBox1.Text);
-            if (maskedTextBox1.MaskCompleted)
-            {
-                Console.WriteLine("full text");
-            }
-        }
+        //private void maskedTextBox1_MaskInputRejected(object sender, MaskInputRejectedEventArgs e)
+        //{
+        //    Console.WriteLine(maskedTextBox1.Text);
+        //    if (maskedTextBox1.MaskCompleted)
+        //    {
+        //        Console.WriteLine("full text");
+        //    }
+        //}
 
 
-        private void maskedFocusOut(object sender, EventArgs e)
-        {
-            checkTimeLiveStream();
-        }
+        //private void maskedFocusOut(object sender, EventArgs e)
+        //{
+        //    checkTimeLiveStream();
+        //}
 
-        private void checkTimeLiveStream()
-        {
-            Match m = Regex.Match(maskedTextBox1.Text, setTimePattern, RegexOptions.IgnoreCase);
-            if (maskedTextBox1.MaskCompleted && m.Success)
-            {
-                int hh = Int32.Parse(maskedTextBox1.Text.Substring(0, 2));
-                int mm = Int32.Parse(maskedTextBox1.Text.Substring(3, 2));
-                int ss = Int32.Parse(maskedTextBox1.Text.Substring(6, 2));
-                totalTimeLiveStream = hh * 3600 + mm * 60 + ss;
-                if (totalTimeLiveStream <= 0)
-                {
-                    lbMess.Text = "Please set time!";
-                    maskedTextBox1.Focus();
-                }
-            }
-            else
-            {
-                lbMess.Text = "Please set time!";
-                maskedTextBox1.Focus();
-            }
-        }
+        //private void checkTimeLiveStream()
+        //{
+        //    Match m = Regex.Match(maskedTextBox1.Text, setTimePattern, RegexOptions.IgnoreCase);
+        //    if (maskedTextBox1.MaskCompleted && m.Success)
+        //    {
+        //        int hh = Int32.Parse(maskedTextBox1.Text.Substring(0, 2));
+        //        int mm = Int32.Parse(maskedTextBox1.Text.Substring(3, 2));
+        //        int ss = Int32.Parse(maskedTextBox1.Text.Substring(6, 2));
+        //        totalTimeLiveStream = hh * 3600 + mm * 60 + ss;
+        //        if (totalTimeLiveStream <= 0)
+        //        {
+        //            lbMess.Text = "Please set time!";
+        //            maskedTextBox1.Focus();
+        //        }
+        //    }
+        //    else
+        //    {
+        //        lbMess.Text = "Please set time!";
+        //        maskedTextBox1.Focus();
+        //    }
+        //}
 
     }
 }
