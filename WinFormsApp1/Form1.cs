@@ -354,7 +354,7 @@ namespace WinFormsApp1
 
 
             // lấy số lượng loop
-            var loop = Int32.Parse(tbLoop.Text);
+            var loop = type == "live247" ? 1 : Int32.Parse(tbLoop.Text);
             String contentLoopFile = "";
             //tạo string loop từ đường dẫn video
             for (int i = 0; i < loop; i++)

@@ -1,5 +1,5 @@
 remember :true
 select video :fdfd
 stream code :fdfdfd
-type :set time
+type :live 247
 set loop :
